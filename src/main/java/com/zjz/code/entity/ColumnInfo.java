@@ -30,6 +30,18 @@ public class ColumnInfo {
 	public String getDataType() {
 		return dataType;
 	}
+	public String getJavaFieldType() {
+		if("NUMBER".equals(dataType.toUpperCase())) {
+			return "BigDecimal";
+		}
+		return "String";
+	}
+	public String getImportSentence() {
+		if("NUMBER".equals(dataType.toUpperCase())) {
+			return "import java.math.BigDecimal;";
+		}
+		return "";
+	}
 	public void setDataType(String dataType) {
 		this.dataType = dataType;
 	}

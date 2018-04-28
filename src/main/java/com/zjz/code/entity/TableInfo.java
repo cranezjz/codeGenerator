@@ -2,11 +2,14 @@ package com.zjz.code.entity;
 
 import java.util.List;
 
+import org.springframework.util.StringUtils;
+
 import com.zjz.code.util.StringUtil;
 
 public class TableInfo {
 	private String tableName;
 	private String className;
+	private String objectName;
 	private String comment;
 	private List<ColumnInfo> list;
 	public String getTableName() {
@@ -20,6 +23,11 @@ public class TableInfo {
 	}
 	public void setClassName(String tableName) {
 		this.className = StringUtil.tableNameToClassName(tableName);
+		this.objectName = StringUtils.uncapitalize(this.className);
+	}
+	
+	public String getObjectName() {
+		return objectName;
 	}
 	public String getComment() {
 		return comment;

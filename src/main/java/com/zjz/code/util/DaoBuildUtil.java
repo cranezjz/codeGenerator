@@ -6,14 +6,14 @@ import java.util.List;
 
 import com.zjz.code.entity.TableInfo;
 
-public class EntityBuildUtil {
+public class DaoBuildUtil {
 
 	public static void createEntity(List<TableInfo> list) {
 		
 	}
-	public static String createPathByPackage(List<String> entityTemplateContent,String outPath) throws IOException {
+	public static String createPathByPackage(List<String> daoTemplateContent,String outPath) throws IOException {
 		String packageName="";
-		for (String line : entityTemplateContent) {
+		for (String line : daoTemplateContent) {
 			if(line.startsWith("package")){
 				packageName=line.replace("package", "").replace(";","").trim();
 				break;

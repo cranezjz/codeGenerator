@@ -1,5 +1,6 @@
 package com.zjz.code.init;
 
+import java.io.File;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -13,10 +14,11 @@ import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
 import com.zjz.code.entity.TableInfo;
+import com.zjz.code.service.CommonTemplateService;
+import com.zjz.code.service.DTOService;
 import com.zjz.code.service.EntityService;
 import com.zjz.code.service.LoadDBInfoService;
-import com.zjz.code.util.DtoBuildUtil;
-import com.zjz.code.util.TemplateBuildUtil;
+import com.zjz.code.util.FileHelper;
 
 @Component
 @Order(value = 1)
@@ -32,22 +34,27 @@ public class MyApplicationRunner implements ApplicationRunner {
 	private LoadDBInfoService loadDBInfoService;
 	@Autowired
 	private EntityService EntityService;
-	
+	@Autowired
+	private DTOService dtoService;
+	@Autowired
+	private CommonTemplateService commonTemplateService;
     @Override
     public void run(ApplicationArguments var1) throws Exception{
     	logger.info("开始读表。。。");
-    	List<TableInfo> list = loadDBInfoService.reader();
-    	logger.info("读到的数据："+new Gson().toJson(list));
-    	Thread.sleep(1000);
+    	List<TableInfo> tableInfos = loadDBInfoService.reader();
+    	logger.info("读到的数据："+new Gson().toJson(tableInfos));
+    	logger.info("清理输出目录："+srcPath);
+    	FileHelper.deleteDir(new File(srcPath));
     	logger.info("正在构建实体类。。。");
-    	EntityService.createEntity(list,templatePath,srcPath);
-    	Thread.sleep(1000);
-    	logger.info("正在构建DTO。。。");
-    	DtoBuildUtil.createDto(list);
-    	Thread.sleep(1000);
-    	logger.info("正在构建通用模板。。。");
-    	TemplateBuildUtil.build(list);
-    	Thread.sleep(1000);
+    	EntityService.createEntity(tableInfos,templatePath,srcPath);
+    	logger.info("正在构建Dto。。。");
+    	dtoService.createDto(tableInfos,templatePath,srcPath);
+    	logger.info("正在构建Dao。。。");
+    	commonTemplateService.createFileByTemplate(tableInfos, templatePath, srcPath,"DaoTemplate.java","Dao.java");
+    	logger.info("正在构建Service。。。");
+    	commonTemplateService.createFileByTemplate(tableInfos, templatePath, srcPath,"ServiceTemplate.java","Service.java");
+    	logger.info("正在构建Controller。。。");
+    	commonTemplateService.createFileByTemplate(tableInfos, templatePath, srcPath,"ControllerTemplate.java","Controller.java");
     	logger.info("执行结束    ok");
     }
 }
