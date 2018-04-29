@@ -18,6 +18,7 @@ import com.zjz.code.service.CommonTemplateService;
 import com.zjz.code.service.DTOService;
 import com.zjz.code.service.EntityService;
 import com.zjz.code.service.LoadDBInfoService;
+import com.zjz.code.util.CommonBuildUtil;
 import com.zjz.code.util.FileHelper;
 
 @Component
@@ -30,6 +31,18 @@ public class MyApplicationRunner implements ApplicationRunner {
 	private String templatePath;
 	@Value(value = "${code.srcPath}")
 	private String srcPath;
+	
+	@Value(value = "${code.entityTemplateFileName}")
+	private String entityTemplateFileName;
+	@Value(value = "${code.dtoTemplateFileName}")
+	private String dtoTemplateFileName;
+	@Value(value = "${code.daoTemplateFileName}")
+	private String daoTemplateFileName;
+	@Value(value = "${code.serviceTemplateFileName}")
+	private String serviceTemplateFileName;
+	@Value(value = "${code.controllerTemplateFileName}")
+	private String controllerTemplateFileName;	
+	
 	@Autowired
 	private LoadDBInfoService loadDBInfoService;
 	@Autowired
@@ -45,16 +58,19 @@ public class MyApplicationRunner implements ApplicationRunner {
     	logger.info("读到的数据："+new Gson().toJson(tableInfos));
     	logger.info("清理输出目录："+srcPath);
     	FileHelper.deleteDir(new File(srcPath));
+    	FileHelper.mkDir(new File(srcPath));
+    	logger.info("初始化模板指令值。。。");
+    	CommonBuildUtil.initTemplateCommandValue(templatePath,entityTemplateFileName,dtoTemplateFileName,daoTemplateFileName,serviceTemplateFileName);
     	logger.info("正在构建实体类。。。");
-    	EntityService.createEntity(tableInfos,templatePath,srcPath);
+    	EntityService.createEntity(tableInfos,templatePath,entityTemplateFileName,srcPath);
     	logger.info("正在构建Dto。。。");
-    	dtoService.createDto(tableInfos,templatePath,srcPath);
+    	dtoService.createDto(tableInfos,templatePath,dtoTemplateFileName,entityTemplateFileName,srcPath);
     	logger.info("正在构建Dao。。。");
-    	commonTemplateService.createFileByTemplate(tableInfos, templatePath, srcPath,"DaoTemplate.java","Dao.java");
+    	commonTemplateService.createFileByTemplate(tableInfos, templatePath, srcPath,daoTemplateFileName,"Dao.java");
     	logger.info("正在构建Service。。。");
-    	commonTemplateService.createFileByTemplate(tableInfos, templatePath, srcPath,"ServiceTemplate.java","Service.java");
+    	commonTemplateService.createFileByTemplate(tableInfos, templatePath, srcPath,serviceTemplateFileName,"Service.java");
     	logger.info("正在构建Controller。。。");
-    	commonTemplateService.createFileByTemplate(tableInfos, templatePath, srcPath,"ControllerTemplate.java","Controller.java");
+    	commonTemplateService.createFileByTemplate(tableInfos, templatePath, srcPath,controllerTemplateFileName,"Controller.java");
     	logger.info("执行结束    ok");
     }
 }

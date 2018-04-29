@@ -5,6 +5,7 @@ package com.xhyj.meeting.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.reflect.Field;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -22,12 +23,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
-import com.xhyj.meeting.dao.MeetBaseInfoDao;
-import com.xhyj.meeting.db.entity.MeetBaseInfo;
+import _{daoPackageName}._{className}Dao;
+import _{entityPackageName}._{className};
 import com.xhyj.meeting.util.MyBeanUtil;
 import com.xhyj.meeting.util.TokenUtl;
+//import _{dtoPackageName}._{className}Dto;
+//import _{entityPackageName}._{className};
+
 
 
 /**
@@ -46,7 +49,7 @@ public class _{className}Service {
 	private _{className}Dao _{objectName}Dao;
 	/**
 	 * 
-	 * @param meetBaseInfo
+	 * @param _{objectName}
 	 * @param pageNum
 	 * @return
 	 */
@@ -64,7 +67,7 @@ public class _{className}Service {
 	}
 	/**
 	 * 
-	 * @param meetBaseInfo
+	 * @param _{objectName}
 	 * @return
 	 */
 	public _{className} findOneById(_{className} _{objectName}) {
@@ -72,23 +75,22 @@ public class _{className}Service {
 	}
 	
 	/**
-	 * @param meetBaseInfo
+	 * @param _{objectName}
 	 * @return
 	 */
 	public _{className} add(_{className} _{objectName}) {
-		MyBeanUtil.complementAddBean(meetBaseInfo, TokenUtl.getOperatorIdFromToken(""));
+		MyBeanUtil.complementAddBean(_{objectName}, TokenUtl.getOperatorIdFromToken(""));
 		logger.info(_{objectName}.toString());
 		return _{objectName}Dao.save(_{objectName});
 	}
 	
 	/**
-	 * @param meetBaseInfo
+	 * @param _{objectName}
 	 * @return
 	 */
     @Transactional
-	public _{className} update(_{className} meetBaseInfo) {
+	public _{className} update(_{className} _{objectName}) {
     	_{className} dbBean = _{objectName}Dao.findOne(_{objectName}.getId());
-    	dbBean.setName(_{objectName}.getName());
     	MyBeanUtil.setBean(_{objectName}, dbBean);
     	MyBeanUtil.complementUpdateBean(_{objectName}, TokenUtl.getOperatorIdFromToken(""));
     	_{objectName}Dao.save(dbBean);
@@ -104,17 +106,30 @@ public class _{className}Service {
      * @param searchArticle
      * @return
      */
-    private Specification<_{className}> getWhereClause(final _{className} meetBaseInfo){
+    private Specification<_{className}> getWhereClause(final _{className} _{objectName}){
         return new Specification<_{className}>() {
 			@Override
 			public Predicate toPredicate(Root<_{className}> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 				List<Predicate> predicate = new ArrayList<>();
-                if(!StringUtils.isEmpty(meetBaseInfo.getName())){
-                    predicate.add(cb.like(root.get("name").as(String.class), "%"+meetBaseInfo.getName()+"%"));
-                }
-                if(!StringUtils.isEmpty(meetBaseInfo.getStt())){
-                    predicate.add(cb.equal(root.get("stt").as(String.class), meetBaseInfo.getStt()));
-                }
+				/*if(!StringUtils.isEmpty(meetBaseInfo.getName())){
+                predicate.add(cb.like(root.get("name").as(String.class), "%"+meetBaseInfo.getName()+"%"));
+	            }
+	            if(!StringUtils.isEmpty(meetBaseInfo.getStt())){
+	                predicate.add(cb.equal(root.get("stt").as(String.class), meetBaseInfo.getStt()));
+	            }*/
+				Field[] fields = _{objectName}.getClass().getDeclaredFields();
+				for (Field field : fields) {
+					try {
+						field.setAccessible(true);
+						if(field.get(_{objectName})==null) {
+							continue;
+						}
+						predicate.add(cb.equal(root.get(field.getName()).as(String.class), field.get(_{objectName})));
+					}catch (Exception e) {
+						logger.warn("拼装查询条件失败："+e.getMessage());
+					}
+				}
+				
                 Predicate[] pre = new Predicate[predicate.size()];
                 return query.where(predicate.toArray(pre)).getRestriction();
 			}

@@ -8,18 +8,17 @@ import org.apache.commons.io.FileUtils;
 
 public class FileHelper {
 	public static List<String> readCommonTemplateContent(String templatePath,String templateName) throws IOException {
-		//File file = new File(templatePath+"DaoTemplate.java");
 		File file = new File(templatePath+templateName);
 		return FileUtils.readLines(file, "UTF-8");
 	}
-	public static List<String> readEntityTemplateContent(String templatePath) throws IOException{
-		File file = new File(templatePath+"EntityTemplate.java");
+/*	public static List<String> readTemplateContent(String templatePath,String templateFileName) throws IOException{
+		File file = new File(templatePath+templateFileName);
 		return FileUtils.readLines(file, "UTF-8");
-	}
-	public static List<String> readDtoTemplateContent(String templatePath) throws IOException{
+	}*/
+	/*public static List<String> readDtoTemplateContent(String templatePath) throws IOException{
 		File file = new File(templatePath+"DtoTemplate.java");
 		return FileUtils.readLines(file, "UTF-8");
-	}
+	}*/
 	public static void writeFile(File file, List<String> entityFileContent) throws IOException {
 		FileUtils.writeLines(file, "UTF-8", entityFileContent);
 	}
@@ -30,9 +29,12 @@ public class FileHelper {
 	public static void mkDir(File file) throws IOException {  
 		FileUtils.forceMkdir(file);
     } 
-	public static void deleteDir(File file) throws IOException {  
+	public static void deleteDir(File file) {  
 		if(file.exists()) {
-			FileUtils.forceDelete(new File("C:\\tmp\\code\\out\\com"));
+			try {
+				FileUtils.forceDelete(file);
+			} catch (IOException e) {
+			}
 		}
     } 
 	public static void main(String[] args) {

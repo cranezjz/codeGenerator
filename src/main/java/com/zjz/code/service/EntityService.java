@@ -23,9 +23,9 @@ public class EntityService {
 	 * @param list
 	 * @param templatePath
 	 */
-	public void createEntity(List<TableInfo> list, String templatePath,String srcOutPath) {
+	public void createEntity(List<TableInfo> list, String templatePath,String templateFileName,String srcOutPath) {
 		try {
-			List<String> entityTemplateContent = FileHelper.readEntityTemplateContent(templatePath);
+			List<String> entityTemplateContent = FileHelper.readCommonTemplateContent(templatePath,templateFileName);
 			String entityPath = EntityBuildUtil.createPathByPackage(entityTemplateContent,srcOutPath);
 			logger.info("创建目录【"+entityPath+"】成功");
 			for (TableInfo tableInfo : list) {
@@ -80,13 +80,13 @@ public class EntityService {
 			String propertyName = columnInfo.getPropertyName();
 			sb.append(propertyName+"=\"");
 			sb.append("+"+propertyName);
+			if(i%3==2&&i<cols.size()) {
+				sb.append("\n\t\t\t");
+			}
 			if(i==cols.size()-1) {
 				sb.append("+\"");
 			}else {
 				sb.append("+\", ");
-			}
-			if(i%3==2&&i<cols.size()) {
-				sb.append("\n\t\t\t");
 			}
 		}
 		sb.append("]\";");
@@ -155,7 +155,7 @@ public class EntityService {
 			return;
 		}
 		for (String line : entityFileContent) {
-			if(line.contains("importSentence")) {
+			if(line.contains(importSentence)) {
 				return;
 			}
 		}

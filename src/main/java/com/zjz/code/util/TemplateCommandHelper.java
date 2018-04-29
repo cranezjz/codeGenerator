@@ -23,6 +23,18 @@ public class TemplateCommandHelper {
 	public static String columnName="_{columnName}";
 	public static String propertyName="_{propertyName}";
 	public static String columnComments="_{columnComments}";
+	
+	public static String entityPackageName="_{entityPackageName}";
+	public static String daoPackageName="_{daoPackageName}";
+	public static String servicePackageName="_{servicePackageName}";
+	public static String dtoPackageName="_{dtoPackageName}";
+	//解析模板后给下面四个变量赋值
+	public static String entityPackageNameValue="";
+	public static String daoPackageNameValue="";
+	public static String servicePackageNameValue="";
+	public static String dtoPackageNameValue="";
+	
+	
 	public static String date="_{date}";
 	public static String analyseTemplate(TableInfo tableInfo,ColumnInfo columnInfo,String line) {
 		String newLine = line;
@@ -30,6 +42,11 @@ public class TemplateCommandHelper {
 		newLine = StringUtils.replace(newLine, className, tableInfo.getClassName());
 		newLine = StringUtils.replace(newLine, objectName, tableInfo.getObjectName());
 		newLine = StringUtils.replace(newLine, tableComments, tableInfo.getComment());
+		
+		newLine = StringUtils.replace(newLine, entityPackageName, entityPackageNameValue);
+		newLine = StringUtils.replace(newLine, daoPackageName, daoPackageNameValue);
+		newLine = StringUtils.replace(newLine, servicePackageName,servicePackageNameValue);
+		newLine = StringUtils.replace(newLine, dtoPackageName, dtoPackageNameValue);
 		newLine = StringUtils.replace(newLine, date, getDate());
 		return newLine;
 	}

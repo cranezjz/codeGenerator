@@ -12,13 +12,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.xhyj.meeting.db.entity._{className};
-import com.xhyj.meeting.dto._{className}Dto;
 import com.xhyj.meeting.dto.ReturnData;
-import com.xhyj.meeting.service._{className}Service;
 import com.xhyj.meeting.util.MyBeanUtil;
 import com.xhyj.util.annotation.Label;
 
+import com.xhyj.meeting.dto._{className}Dto;
+import _{servicePackageName}._{className}Service;
+import _{entityPackageName}._{className};
 
 /**
  * 

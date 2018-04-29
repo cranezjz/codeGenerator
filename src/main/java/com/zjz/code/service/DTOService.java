@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.zjz.code.entity.TableInfo;
+import com.zjz.code.util.CommonBuildUtil;
 import com.zjz.code.util.DtoBuildUtil;
 import com.zjz.code.util.FileHelper;
 
@@ -26,24 +27,24 @@ public class DTOService {
 	 * @param list
 	 * @param templatePath
 	 */
-	public void createDto(List<TableInfo> list, String templatePath,String srcOutPath) {
+	public void createDto(List<TableInfo> list, String templatePath,String dtoTemplateFileName,String entityTemplateFileName,String srcOutPath) {
 		try {
 			//读实体目标
-			List<String> dtoTemplateContent = FileHelper.readDtoTemplateContent(templatePath);
+			List<String> dtoTemplateContent = FileHelper.readCommonTemplateContent(templatePath,dtoTemplateFileName);
 			String dtoPath = DtoBuildUtil.createPathByPackage(dtoTemplateContent,srcOutPath);
 			logger.info("创建目录【"+dtoPath+"】成功");
-			String entityClassPath = getEntityClassPath(templatePath,srcOutPath);
+			//获取实体类的路径
+			String entityClassPath = getEntityClassPath(templatePath,entityTemplateFileName,srcOutPath);
 			Collection<File> listFiles = FileUtils.listFiles(new File(entityClassPath), FileFilterUtils.suffixFileFilter("java"), null);
 			for (Iterator<File> iterator = listFiles.iterator(); iterator.hasNext();) {
 				File entityFile = iterator.next();
 				List<String> lines = FileUtils.readLines(entityFile);
 				List<String> newLines = new ArrayList<String>();
-				for(String line : lines) {//过滤注解
-					if(line!=null && line.trim().startsWith("@")) {
-						continue;
-					}
-					if(line!=null && line.trim().startsWith("package")) {
+				for(String line : lines) {
+					if(line!=null && line.trim().startsWith("package")) {//修改package
 						newLines.add(DtoBuildUtil.getPackageSentence(dtoTemplateContent));
+					}
+					if(skip(line)) {//过滤注解和多余的import
 						continue;
 					}
 					//修改类名
@@ -61,15 +62,29 @@ public class DTOService {
 			logger.error(e.getMessage(),e);
 		}
 	}
-	private String getEntityClassPath(String templatePath, String srcOutPath) throws IOException {
-		List<String> entityTemplateContent = FileHelper.readEntityTemplateContent(templatePath);
-		String packageName="";
-		for (String line : entityTemplateContent) {
-			if(line.startsWith("package")){
-				packageName=line.replace("package", "").replace(";","").trim();
-				break;
-			}
+	private boolean skip(String line) {
+		if(line!=null && line.trim().startsWith("@")) {
+			return true;
 		}
+		if(line!=null && line.trim().startsWith("package")) {
+			return true;
+		}
+		if(line!=null && line.trim().startsWith("import javax.persistence.Column;")) {
+			return true;
+		}
+		if(line!=null && line.trim().startsWith("import javax.persistence.Entity;")) {
+			return true;
+		}
+		if(line!=null && line.trim().startsWith("import javax.persistence.Id;")) {
+			return true;
+		}
+		if(line!=null && line.trim().startsWith("import javax.persistence.Table;")) {
+			return true;
+		}
+		return false;
+	}
+	private String getEntityClassPath(String templatePath,String templateFileName, String srcOutPath) throws IOException {
+		String packageName=CommonBuildUtil.getPackageName(templatePath, templateFileName);
 		return srcOutPath+packageName.replace(".", "/");
 	}
 }
